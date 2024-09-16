@@ -8,6 +8,19 @@ interface Props {
 const { title } = Astro.props;
 ---
 
+<script>
+    // Code added to script tag will be loaded as client side code
+    // While code in the `---` block above will only run server side during build time
+    import JSConfetti from "js-confetti";
+
+    if (!window.location.host.includes("localhost") && !window.location.host.includes("127.0.0.1")) {
+        const confetti = new JSConfetti();
+        setInterval(() => {
+            confetti.addConfetti();
+        }, 1000);
+    }
+</script>
+
 <!doctype html>
 <html lang="en">
   <head>
