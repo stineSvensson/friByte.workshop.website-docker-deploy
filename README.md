@@ -3,6 +3,7 @@
 # Fork this repository before you start!
 
 - By clicking the fork button on the top right corner of this page, you will then have your own copy of this repository to work on. This way you can make changes to the code and save them without affecting the original repository.
+  - When forking using GitHub Desktop select `For my own purposes` when asked what you are planning to use this fork for.
 
 =============================================
 
@@ -138,7 +139,7 @@ jobs:
         uses: actions/checkout@v4
       # Uses the `docker/login-action` action to log in to the Container registry registry using the account and password that will publish the packages. Once published, the packages are scoped to the account defined here.
       - name: Log in to the Container registry
-        uses: docker/login-action
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -146,14 +147,14 @@ jobs:
       # This step uses [docker/metadata-action](https://github.com/docker/metadata-action#about) to extract tags and labels that will be applied to the specified image. The `id` "meta" allows the output of this step to be referenced in a subsequent step. The `images` value provides the base name for the tags and labels.
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
       # It uses the `tags` and `labels` parameters to tag and label the image with the output from the "meta" step.
       - name: Build and push Docker image
         id: push
-        uses: docker/build-push-action
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           context: .
           push: true
@@ -203,7 +204,6 @@ Docker Compose is a tool for defining and running multi-container Docker applica
 - To open the file in the terminal you can use `nano docker-compose.yml`
 
 ```yml
-version: "3.0"
 services:
   nginx-proxy:
     image: jwilder/nginx-proxy
@@ -264,8 +264,8 @@ services:
 docker compose up -d
 ```
 
-4. View list of running containers by running `docker ps -a`
-5. Then look at logs by running `docker compose logs --tail 100 -f`
+4. View list of running containers by running `sudo docker ps -a`
+5. Then look at logs by running `sudo docker compose logs --tail 100 -f`
 6. You will now get some errors because we have not setup the domain name yet. But you should see that the containers are running.
 
 #### Setup domain name
@@ -274,7 +274,22 @@ Follow https://wiki.fribyte.no/docs/instrukser/domener/ to setup a domain name f
 
 - Add the domain name under `;; fjern disse en gang`
 
-Go back to your server and run `docker compose restart` to restart the containers. You should now be able to access your website by going to the domain name you just added.
+Go back to your server and run `sudo docker compose restart` to restart the containers. You should now be able to access your website by going to the domain name you just added.
+
+## Live deployment of updates
+
+In order to automatically update docker images on the server when you push changes to the repository, you can use a service called https://containrrr.dev/watchtower/ which automatically updates the docker images when a new version is available.
+
+To install it modify the `docker-compose.yml` file to include the watchtower service
+
+```yml
+watchtower:
+  image: containrrr/watchtower
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+```
+
+Then run `docker compose up -d` to start the watchtower service.
 
 ## Conclusion
 
